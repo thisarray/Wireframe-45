@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tigerheli</title>
+  <script src="../../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/background.png" alt="background" data-name="background">
+  <img class="hidden" src="images/bomb1.png" alt="bomb1" data-name="bomb1">
+  <img class="hidden" src="images/bomb10.png" alt="bomb10" data-name="bomb10">
+  <img class="hidden" src="images/bomb2.png" alt="bomb2" data-name="bomb2">
+  <img class="hidden" src="images/bomb3.png" alt="bomb3" data-name="bomb3">
+  <img class="hidden" src="images/bomb4.png" alt="bomb4" data-name="bomb4">
+  <img class="hidden" src="images/bomb5.png" alt="bomb5" data-name="bomb5">
+  <img class="hidden" src="images/bomb6.png" alt="bomb6" data-name="bomb6">
+  <img class="hidden" src="images/bomb7.png" alt="bomb7" data-name="bomb7">
+  <img class="hidden" src="images/bomb8.png" alt="bomb8" data-name="bomb8">
+  <img class="hidden" src="images/bomb9.png" alt="bomb9" data-name="bomb9">
+  <img class="hidden" src="images/heli1.png" alt="heli1" data-name="heli1">
+  <img class="hidden" src="images/heli2.png" alt="heli2" data-name="heli2">
+  <img class="hidden" src="images/helishadow1.png" alt="helishadow1" data-name="helishadow1">
+  <img class="hidden" src="images/helishadow2.png" alt="helishadow2" data-name="helishadow2">
+  <img class="hidden" src="images/tank0.png" alt="tank0" data-name="tank0">
+  <img class="hidden" src="images/tank1.png" alt="tank1" data-name="tank1">
+  <img class="hidden" src="images/tank10.png" alt="tank10" data-name="tank10">
+  <img class="hidden" src="images/tank2.png" alt="tank2" data-name="tank2">
+  <img class="hidden" src="images/tank3.png" alt="tank3" data-name="tank3">
+  <img class="hidden" src="images/tank4.png" alt="tank4" data-name="tank4">
+  <img class="hidden" src="images/tank5.png" alt="tank5" data-name="tank5">
+  <img class="hidden" src="images/tank6.png" alt="tank6" data-name="tank6">
+  <img class="hidden" src="images/tank7.png" alt="tank7" data-name="tank7">
+  <img class="hidden" src="images/tank8.png" alt="tank8" data-name="tank8">
+  <img class="hidden" src="images/tank9.png" alt="tank9" data-name="tank9">
+</section>
+<section id="soundLoader" class="hidden">
+  <audio class="hidden" controls preload="auto" src="sounds/explosion.wav" data-name="explosion">Your browser does not support the audio element.</audio>
+  <audio class="hidden" controls preload="auto" src="sounds/launch.wav" data-name="launch">Your browser does not support the audio element.</audio>
+</section>
+
+<main>
+<h1>tigerheli</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://wireframe.raspberrypi.org/issues/45">Recreate Tiger-Heli's bomb machanic, pages 64-65, by Mark Vanstone</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+# Tiger-Heli
+
+WIDTH = 600
+HEIGHT = 800
+backgroundY = count = 0
+heli = Actor(&#x27;heli1&#x27;, center=(300, 650))
+bombActive = False
+bombs = []
+bombDirs = [(0,1),(1,1),(1,0),(0,0),(0,-1),(-1,-1),(-1,0),(-1,1),(1,-1),(-0.5,0),(0.5,0.5),(-0.5,-0.5),(0.5,-0.5),(0,-0.5),(-0.5,0.5),(-0.5,1),(1,-0.5),(-1,-0.5),(0.5,-1)]
+for b in range(0, 18):
+    bombs.append(Actor(&#x27;bomb1&#x27;, center=(0,0)))
+    bombs[b].frame = 0
+tankLocations = [(500,-250),(100,-250),(300,-500)]
+tanks = []
+for t in range(0,3):
+    tanks.append(Actor(&#x27;tank0&#x27;, center=(tankLocations[t][0],tankLocations[t][1])))
+    tanks[t].frame = 0
+
+def draw():
+    screen.blit(&#x27;background&#x27;,(0,backgroundY))
+    screen.blit(&#x27;background&#x27;,(0,backgroundY-1400))
+    screen.blit(&quot;helishadow&quot;+str(count%2 + 1),(heli.x+10,heli.y+10))
+    for t in range(0,3):
+        if tanks[t].frame &lt; 10:
+            tanks[t].draw()
+    if bombActive == True:
+        for b in range(0, 18):
+            bombs[b].draw()
+    heli.draw()
+
+def update():
+    global backgroundY, count,bombActive
+    backgroundY += 1
+    if backgroundY &gt; 1400: backgroundY = 0
+    heli.image = &quot;heli&quot;+str(count%2 + 1)
+    if keyboard.left and heli.x &gt; 50 : heli.x -= 2
+    if keyboard.right and heli.x &lt; 550 : heli.x += 2
+    if keyboard.up and heli.y &gt; 50 : heli.y -= 2
+    if keyboard.down and heli.y &lt; 650 : heli.y += 2
+    if keyboard.space : fireBomb()
+    for t in range(0,3):
+        tanks[t].y = (tankLocations[t][1] + backgroundY)
+        if tanks[t].y &gt; 850: tanks[t].frame = 0
+        if tanks[t].frame &gt; 0 and tanks[t].frame &lt; 10 : tanks[t].frame += 0.2
+        tanks[t].image = &quot;tank&quot;+str(int(tanks[t].frame))
+    if bombActive == True:
+        for b in range(0, 18):
+            bombs[b].y += 1
+            bombs[b].x += bombDirs[b][0]*5
+            bombs[b].y += bombDirs[b][1]*5
+            bombs[b].frame += 1
+            if bombs[b].frame &gt; 30:
+                bombs[b].image = &quot;bomb&quot;+str(bombs[b].frame-30)
+                for t in range(0,3):
+                    if bombs[b].collidepoint(tanks[t].pos) and tanks[t].frame == 0:
+                        tanks[t].frame = 1
+                        sounds.explosion.play()
+            if bombs[b].frame == 40:
+                bombActive = False
+    count += 1
+
+def fireBomb():
+    global bombActive
+    if bombActive == False :
+        bombActive = True
+        sounds.launch.play()
+        for b in range(0, 18):
+            bombs[b].frame = 1
+            bombs[b].pos = heli.pos
+            bombs[b].image = &quot;bomb1&quot;
+</code></pre>
+</main>
+
+<script>
+// Tiger-Heli
+
+WIDTH = 600;
+HEIGHT = 800;
+
+const BOMB_DIRS = [[0, 1], [1, 1], [1, 0], [0, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1], [-0.5, 0], [0.5, 0.5], [-0.5, -0.5], [0.5, -0.5], [0, -0.5], [-0.5, 0.5], [-0.5, 1], [1, -0.5], [-1, -0.5], [0.5, -1]];
+const TANK_LOCATIONS = [[500, -250], [100, -250], [300, -500]];
+
+var backgroundY, count, heli, bombActive, bombs, tanks;
+
+function reset() {
+  backgroundY = 0;
+  count = 0;
+  heli = new Actor('heli1');
+  heli.center = [300, 650];
+  bombActive = false;
+  bombs = [];
+  for (let b = 0; b < 18; b++) {
+    let bomb = new Actor('bomb1');
+    bomb.center = [0, 0];
+    bomb.frame = 0;
+    bombs.push(bomb);
+  }
+  tanks = [];
+  for (let t = 0; t < 3; t++) {
+    let tank = new Actor('tank0');
+    tank.center = TANK_LOCATIONS[t];
+    tank.frame = 0;
+    tanks.push(tank);
+  }
+}
+
+function draw() {
+  screen.blit('background', [0, backgroundY]);
+  screen.blit('background', [0, backgroundY - 1400]);
+  screen.blit("helishadow" + ((count % 2) + 1), [heli.posx + 10, heli.posy + 10]);
+  for (let t of tanks) {
+    if (t.frame < 10) {
+      t.draw();
+    }
+  }
+  if (bombActive) {
+    for (let b of bombs) {
+      b.draw();
+    }
+  }
+  heli.draw();
+}
+
+function update() {
+  backgroundY += 1;
+  if (backgroundY > 1400) {
+    backgroundY = 0;
+  }
+  heli.name = "heli" + ((count % 2) + 1);
+  if (keyboard[keys.LEFT] && (heli.posx > 50)) {
+    heli.posx -= 2;
+  }
+  if (keyboard[keys.RIGHT] && (heli.posx < 550)) {
+    heli.posx += 2;
+  }
+  if (keyboard[keys.UP] && (heli.posy > 50)) {
+    heli.posy -= 2;
+  }
+  if (keyboard[keys.DOWN] && (heli.posy < 650)) {
+    heli.posy += 2;
+  }
+  if (keyboard[keys.SPACE]) {
+    fireBomb();
+  }
+  for (let t = 0; t < 3; t++) {
+    tanks[t].posy = TANK_LOCATIONS[t][1] + backgroundY;
+    if (tanks[t].posy > 850) {
+      tanks[t].frame = 0;
+    }
+    if ((tanks[t].frame > 0) && (tanks[t].frame < 10)) {
+      tanks[t].frame += 0.2;
+    }
+    tanks[t].name = "tank" + Math.trunc(tanks[t].frame);
+  }
+  if (bombActive) {
+    for (let b = 0; b < 18; b++) {
+      bombs[b].posy += 1;
+      bombs[b].posx += BOMB_DIRS[b][0] * 5;
+      bombs[b].posy += BOMB_DIRS[b][1] * 5;
+      bombs[b].frame += 1;
+      if (bombs[b].frame > 30) {
+        bombs[b].name = "bomb" + (bombs[b].frame - 30);
+        for (let t of tanks) {
+          if (bombs[b].collidepoint(t.pos) && (t.frame === 0)) {
+            t.frame = 1;
+            sounds.explosion.play();
+          }
+        }
+      }
+      if (bombs[b].frame === 40) {
+        bombActive = false;
+      }
+    }
+  }
+  count += 1;
+}
+
+function fireBomb() {
+  if (!bombActive) {
+    bombActive = true;
+    sounds.launch.play();
+    for (let b of bombs) {
+      b.frame = 1;
+      b.pos = heli.pos;
+      b.name = "bomb1";
+    }
+  }
+}
+
+window.addEventListener('load', (event) => {
+  images.LOAD('#imageLoader img');
+  sounds.LOAD('#soundLoader audio');
+  reset();
+  screen.set_mode('#screen', '#reset', '#pause');
+});
+</script>
+</body>
+
+</html>
